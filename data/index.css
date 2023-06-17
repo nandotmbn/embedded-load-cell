@@ -1,0 +1,131 @@
+* {
+	margin: 0;
+	padding: 0;
+	font-family: "Open Sans";
+	box-sizing: border-box;
+}
+
+body {
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+header {
+	height: 44px;
+	width: 100%;
+	background-color: #4285f4;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+h1.header-title {
+	font-size: 1.2em;
+	color: white;
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+	gap: 20px;
+	height: 70vh;
+}
+
+main div {
+	display: flex;
+	padding: 10px;
+}
+
+main h2 {
+	color: white;
+}
+
+main > div:first-child {
+	gap: 12px;
+	background-color: #34a853;
+	flex-direction: column;
+	flex: 1;
+}
+
+main > div > input {
+	padding: 4px 8px;
+	border-radius: 8px;
+	border: none;
+}
+
+main > div > textarea {
+	border-radius: 8px;
+	padding: 4px 8px;
+	border: none;
+}
+
+main > div:last-child {
+	background-color: #fbbc04;
+	flex: 3;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+main > div > div {
+	background-color: #403105;
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+}
+
+main > div > div > span {
+	display: flex;
+	flex: 5;
+	align-items: center;
+	justify-content: center;
+}
+
+main > div > div > h2 {
+	flex: 1;
+}
+
+main > div > div > span > p {
+	font-size: 6em;
+	color: rgb(255, 255, 255);
+}
+
+footer {
+	height: 120px;
+	width: 100%;
+	background-color: #ea4335;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	justify-content: center;
+	padding: 50px 50px;
+}
+
+footer p {
+	color: white;
+	font-size: 2em;
+	text-align: center;
+}
+
+button {
+	background-color: blue;
+	color: white;
+	border: none;
+	padding: 10px 40px;
+	cursor: pointer;
+}
+
+
+
+/* Media Query */
+@media screen and (min-width: 768px) {
+}
+
+@media screen and (min-width: 1024px) {
+}
+
+@media screen and (min-width: 1440px) {
+}
