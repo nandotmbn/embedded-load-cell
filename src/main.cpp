@@ -15,8 +15,10 @@
 #define RST_PIO 16
 #define RST_PIO 4
 
+String IP_ADDRESS = "192.168.158.87";
+
 // Your Domain name with URL path or IP address with path
-String serverName = "http://192.168.158.87:8081/api/v1/record/apiKey/9BwjCEw5";
+String serverName = "http://" + IP_ADDRESS + ":8081/api/v1/record/apiKey/9BwjCEw5";
 
 // Replace with your network credentials
 const char *ssidAP = "ESP32AP";
