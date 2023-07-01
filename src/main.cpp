@@ -12,18 +12,18 @@
 #include <ESPAsyncWebServer.h>
 #include "Preferences.h"
 
-#define RST_PIO 16
-#define RST_PIO 4
-
-String IP_ADDRESS = "192.168.158.87";
-
-// Your Domain name with URL path or IP address with path
-String serverName = "http://" + IP_ADDRESS + ":8081/api/v1/record/apiKey/9BwjCEw5";
+// #define RST_PIO 16
+// #define RST_PIO 4
 
 // Replace with your network credentials
 const char *ssidAP = "ESP32AP";
 const char *passwordAP = "katakuri";
 char ssid[50], password[50];
+char ipBackend[50], apiKey[50];
+void setup();
+String localIp;
+String apiKeyPrev;
+String ipBackendPrev;
 
 // Set web server port number to 80
 AsyncWebServer server(80);
@@ -44,7 +44,12 @@ void ServerAPMode() //
 
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
-  Serial.println(IP); // 192.168.4.1
+  Serial.print(IP); // 192.168.4.1
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("AP IP address: ");
+  lcd.setCursor(0, 1);
+  lcd.println(IP); // 192.168.4.1
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/accesspoint.html"); });
@@ -52,6 +57,7 @@ void ServerAPMode() //
             { request->send(SPIFFS, "/accesspoint.css"); });
   server.on("/accesspoint.js", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/accesspoint.js"); });
+
   server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request)
             {
               // WiFi.disconnect();
@@ -80,6 +86,8 @@ void ServerAPMode() //
               Serial.println("");
               Serial.println("WiFi connected.");
               Serial.println("IP address: ");
+              preferences.putString("ssid", ssidGet);
+              preferences.putString("password", passwordGet);
               String _ip = WiFi.localIP().toString();
               Serial.println(_ip);
 
@@ -90,13 +98,22 @@ void ServerAPMode() //
                 WiFi.disconnect();
               }
 
-              request->send(200, "text/plain", _ip); });
+              request->send(200, "text/plain", _ip); setup(); });
+
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   server.begin();
 }
 
 void setup()
 {
+  lcd.begin(2, 16);
+  Serial.println("Memulai...");
+  lcd.setCursor(0, 0);
+  lcd.print("Monitoring Berat");
+  lcd.setCursor(2, 1);
+  lcd.print("By : Septian");
+  delay(2500);
+  lcd.clear();
   Serial.begin(115200);
   preferences.begin("credential", false); // Initiate EEPROM Object Storage named "credential"
 
@@ -104,6 +121,8 @@ void setup()
   // This ssid and password works when ESP as Client
   String ssidPref = preferences.getString("ssid", "zmpak");
   String passwordPref = preferences.getString("password", "katakuri");
+  ipBackendPrev = preferences.getString("ipBackend", "192.168.21.174");
+  apiKeyPrev = preferences.getString("apiKey", "katakuri");
 
   if (!SPIFFS.begin(true))
   {
@@ -120,10 +139,11 @@ void setup()
   Serial.println(ssid);
   WiFi.begin(ssid, password);
   unsigned long startTime = millis();
-  while (WiFi.status() != WL_CONNECTED && (millis() - startTime) <= 10000)
+  while (WiFi.status() != WL_CONNECTED && (millis() - startTime) <= 15000)
   {
-    delay(500);
-    Serial.print(".");
+    lcd.print("Connecting...");
+    delay(200);
+    lcd.clear();
   }
 
   if (WiFi.status() != WL_CONNECTED)
@@ -133,22 +153,45 @@ void setup()
       ;
   }
 
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(SPIFFS, "/backend.html"); });
+  server.on("/accesspoint.css", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(SPIFFS, "/accesspoint.css"); });
+  server.on("/backend.js", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(SPIFFS, "/backend.js"); });
+  server.on("/be-update", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              int ipBackendIndex = 0;
+              int apiKeyIndex = 1;
+              String ipBackendGet =  request->arg(ipBackendIndex).c_str();
+              String apiKeyGet = request->arg(apiKeyIndex).c_str();
+
+              ipBackendGet.toCharArray(ipBackend, 50);
+              apiKeyGet.toCharArray(apiKey, 50);
+
+              preferences.putString("ipBackend", ipBackendGet);
+              preferences.putString("apiKey", apiKeyGet);
+
+              Serial.println(ipBackendGet);
+              Serial.println(apiKeyGet);
+
+              request->send(200, "text/plain", "Terupdate"); setup(); });
+
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+
+  // Start server
+  server.begin();
+
   // Print local IP address and start web server
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  localIp = WiFi.localIP().toString();
+  lcd.print(WiFi.localIP());
 
   // lcd.begin();
-  pinMode(HX711_dout, INPUT);
-  lcd.begin(2, 16);
-  Serial.println("Memulai...");
-  lcd.setCursor(0, 0);
-  lcd.print("Monitoring Berat");
-  lcd.setCursor(2, 1);
-  lcd.print("By : Septian");
-  delay(2500);
-  lcd.clear();
+  // pinMode(HX711_dout, INPUT);
 
   scale.begin(HX711_dout, HX711_sck);
   scale.set_scale(21.8852);
@@ -158,23 +201,12 @@ void setup()
 
 void loop()
 {
-  Serial.println("OnLoop");
   double oneReading = scale.get_units(3);
-  // double avg20Reading = scale.get_units(20);
+  Serial.println(oneReading);
   lcd.clear();
-  if (oneReading < 1 && oneReading > -20)
-  {
-    oneReading = oneReading * (0);
-    lcd.print("Berat = " + String(oneReading / 1000));
-    lcd.setCursor(14, 0);
-    lcd.print("Kg");
-  }
-  else
-  {
-    lcd.print("Berat = " + String(oneReading / 1000));
-    lcd.setCursor(14, 0);
-    lcd.print("Kg");
-  }
+  lcd.print("Berat = " + String(oneReading / 1000) + " Kg");
+  lcd.setCursor(0, 1);
+  lcd.print(localIp);
 
   if (digitalRead(4) == LOW)
   {
@@ -186,10 +218,7 @@ void loop()
     lcd.clear();
     lcd.setCursor(1, 0);
     lcd.print("Calibrate Done");
-    // lcd.setCursor(0, 1);
-    // lcd.print("Done");
     delay(800);
-    // lcd.clear();
   }
 
   if (digitalRead(16) == LOW)
@@ -197,8 +226,7 @@ void loop()
     if (WiFi.status() == WL_CONNECTED)
     {
       HTTPClient http;
-
-      String serverPath = serverName;
+      String serverPath = "http://" + ipBackendPrev + ":8081/api/v1/record/apiKey/" + apiKeyPrev;
 
       // Your Domain name with URL path or IP address with path
       http.begin(serverPath.c_str());
@@ -206,12 +234,15 @@ void loop()
       // If you need Node-RED/server authentication, insert user and password below
       // http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
       http.addHeader("Content-Type", "application/json");
-
       String dataBuilder = String("{\"weight\":") + String(oneReading) + String("}");
-
-      Serial.print(dataBuilder);
-
       // Send HTTP GET request
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Mengirim...");
+      lcd.setCursor(0, 1);
+      lcd.print(String(oneReading / 1000) + " Kg");
+
       int httpResponseCode = http.POST(dataBuilder);
 
       if (httpResponseCode > 0)
@@ -238,5 +269,7 @@ void loop()
 
   scale.power_down();
   delay(500);
+  // scale.set_scale(21.8852);
+  // scale.tare(); // reset the scale to 0
   scale.power_up();
 }

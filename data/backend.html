@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Kami noTe | Backend Selector</title>
+		<link rel="stylesheet" href="accesspoint.css" />
+		<link
+			rel="shortcut icon"
+			href="https://i.postimg.cc/VkHPTp1d/Desain-tanpa-judul-11.png"
+			type="image/x-icon"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/icon?family=Material+Icons"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container">
+			<div class="box-container">
+				<form class="flex flex-col">
+					<h1>Ganti Endpoint Server dan API Key</h1>
+					<section class="flex flex-row justify-between">
+						<label for="ssidInput">endpoint</label>
+						<input class="rounded-full" type="text" id="ssidInput" autocomplete="off" />
+					</section>
+					<section class="flex flex-row justify-between">
+						<label for="passwordInput">apikey</label>
+						<input class="rounded-full" type="text" id="passwordInput" autocomplete="off" />
+					</section>
+					<button onclick="sendData(event)">SEND</button>
+				</form>
+                <p class="loooo hidden">loading...</p>
+				<div class="flex flex-row">
+					<p>Status :</p>
+					<p class="ipppp hidden">IP Address: 192.168.4.10</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="backend.js"></script>
+</html>
